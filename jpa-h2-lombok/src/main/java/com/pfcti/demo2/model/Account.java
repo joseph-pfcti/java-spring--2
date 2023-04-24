@@ -7,12 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table
 public class Account {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String accountNumber;
     private String type;
+    private Boolean state;
     @ManyToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
