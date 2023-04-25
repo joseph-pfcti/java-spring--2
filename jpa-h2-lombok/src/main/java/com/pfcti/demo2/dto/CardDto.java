@@ -8,4 +8,5 @@ public class CardDto {
     private String cardNumber;
     private String type;
     private int clientId;
+    private Boolean state;
 }

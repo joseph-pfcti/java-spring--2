@@ -1,5 +1,14 @@
+/*
+ * Layer #1
+ * Persistence layer JPA
+ *
+ * */
+
 package com.pfcti.demo2.model;
 
+import com.pfcti.demo2.dto.AccountDto;
+import com.pfcti.demo2.dto.AddressDto;
+import com.pfcti.demo2.dto.CardDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +31,11 @@ public class Client {
     private String phone;
     private String country;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Account> accounts;
     @OneToMany(mappedBy = "client")
     private List<Address> addresses;
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Card> cards;
     @OneToMany(mappedBy = "client")
     private List<Investment> investments;

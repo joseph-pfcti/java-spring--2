@@ -1,11 +1,19 @@
+/*
+ * Layer #3
+ * Persistence layer Service
+ *
+ * */
+
 package com.pfcti.demo2.service;
 
+import com.pfcti.demo2.criteria.ClientSpecification;
 import com.pfcti.demo2.dto.ClientDto;
 import com.pfcti.demo2.model.Client;
 import com.pfcti.demo2.repository.*;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,14 +30,13 @@ public class ClientService {
     private CardRepository cardRepository;
     private InvestmentRepository investmentRepository;
 
+    private ClientSpecification clientSpecification;
+
+    private CardService cardService;
+    private AccountService accountService;
+
     public void insert(ClientDto clientDto) {
-        Client client = new Client();
-
-        client.setName(clientDto.getName());
-        client.setLastNames(clientDto.getLastNames());
-        client.setDni(clientDto.getDni());
-        client.setPhone(clientDto.getPhone());
-
+        Client client = fromClientDtoToClientEntity(clientDto);
         clientRepository.save(client);
     }
 
@@ -42,14 +49,7 @@ public class ClientService {
     }
 
     public void update(ClientDto clientDto) {
-        Client client = new Client();
-
-        client.setId(clientDto.getId());
-        client.setName(clientDto.getName());
-        client.setLastNames(clientDto.getLastNames());
-        client.setDni(clientDto.getDni());
-        client.setPhone(clientDto.getPhone());
-
+        Client client = fromClientDtoToClientEntity(clientDto);
         clientRepository.save(client);
     }
 
@@ -68,7 +68,7 @@ public class ClientService {
         List<Client> clients = clientRepository.findClientsByCountryAndAccounts_StateIsTrue(countryCode);
 
         clients.forEach(client -> {
-            dtoClients.add(this.createClientDto(client));
+            dtoClients.add(this.fromClientToClientDto(client));
         });
 
         return dtoClients;
@@ -81,25 +81,29 @@ public class ClientService {
         List<Client> clients = clientRepository.findClientByCountryIsNotAndCards_StateIsFalse(countryCode);
 
         clients.forEach(client -> {
-            dtoClients.add(this.createClientDto(client));
+            dtoClients.add(this.fromClientToClientDto(client));
         });
 
         return dtoClients;
     }
 
-    private ClientDto createClientDto (Client client) {
+    private ClientDto fromClientToClientDto (Client client) {
         ClientDto clientDto = new ClientDto();
-        clientDto.setId(client.getId());
-        clientDto.setName(client.getName());
-        clientDto.setLastNames(client.getLastNames());
-        clientDto.setDni(client.getDni());
-        clientDto.setCountry(client.getCountry());
+        BeanUtils.copyProperties(client, clientDto);
+
+        clientDto.setCards(cardService.convertCardListToCardListDto(client.getCards()));
+        clientDto.setAccounts(accountService.convertAccountListToAccountListDto(client.getAccounts()));
 
         return clientDto;
     }
 
-    public List<Client> findClientByLastNames (String lastNames) {
+    private Client fromClientDtoToClientEntity (ClientDto clientDto) {
+        Client client = new Client();
+        BeanUtils.copyProperties(clientDto, client);
+        return client;
+    }
 
+    public List<Client> findClientByLastNames (String lastNames) {
         return clientRepository.findByLastName(lastNames);
     }
 
@@ -129,5 +133,24 @@ public class ClientService {
 //        }).collect(Collectors.toList());
 
         return clientDtos;
+    }
+
+    public List<ClientDto> findByCriteria(ClientDto clientDtoFilter) {
+        return clientRepository
+                .findAll(clientSpecification.buildFilter(clientDtoFilter))
+                .stream()
+                .map(this::fromClientToClientDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ClientDto> findByClientIdAndGetActiveProducts (int clientId) {
+        List<ClientDto> clientDtoList = new ArrayList<>();
+        List<Client> clients = clientRepository.findClientByIdAndCards_StateIsTrueAndAccounts_StateIsTrue(clientId);
+
+        clients.forEach(client -> {
+            clientDtoList.add(this.fromClientToClientDto(client));
+        });
+
+        return clientDtoList;
     }
 }

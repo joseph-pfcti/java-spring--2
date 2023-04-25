@@ -46,6 +46,7 @@ class ClientServiceTest {
         clientDto.setLastNames("Ramirez Marchena");
         clientDto.setDni("1111111");
         clientDto.setPhone("88888888");
+        clientDto.setCountry("CR");
 
         clientService.insert(clientDto);
 
@@ -122,4 +123,29 @@ class ClientServiceTest {
 
         assertTrue(clients.size() > 1, "Clients size was: " + clients.size());
     }
+
+    @Test
+    void findClientByCriteria () {
+        ClientDto clientDto = new ClientDto();
+        clientDto.setLastNames("PEREZ");
+        clientDto.setName("ROBERTO");
+        List<ClientDto> clientDtoList = clientService.findByCriteria(clientDto);
+
+        assertEquals(1, clientDtoList.size());
+    }
+
+    @Test
+    void findByClientIdAndGetActiveProducts () {
+        List<ClientDto> clientDtoList = clientService.findByClientIdAndGetActiveProducts(1);
+        clientDtoList.get(0).getCards().forEach(cardDto -> {
+            System.out.println(cardDto + " CLIENT WITH CARD PRODUCT");
+        });
+
+        clientDtoList.get(0).getAccounts().forEach(accountDto -> {
+            System.out.println(accountDto + " CLIENT WITH ACCOUNT PRODUCT");
+        });
+
+        assertEquals(1, clientDtoList.size());
+    }
 }
+
