@@ -1,10 +1,7 @@
 package com.pfcti.springbeans;
 
 import com.pfcti.springbeans.dto.ClientQueryDto;
-import com.pfcti.springbeans.dto.ClientQueryType;
 import com.pfcti.springdata.dto.ClientDto;
-import com.pfcti.springdata.repository.ClientRepository;
-import com.pfcti.springdata.service.ClientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,11 +9,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @SpringBootTest
-class ClientAdministratorTest {
+class ClientAdministratorAutowiredTest {
     @Autowired
-    private ClientAdministrator clientAdministrator;
+    private ClientAdministrator criteriaByDni;
+
+    @Autowired
+    @Qualifier("defaultName")
+    private ClientAdministrator defaultCriteriaByNames;
 
 
     @Test
@@ -25,7 +27,7 @@ class ClientAdministratorTest {
 
         clientQueryDto.setTextFilter("1");
 
-        List<ClientDto> clientDtos = clientAdministrator.getClientsByCriteria(clientQueryDto);
+        List<ClientDto> clientDtos = criteriaByDni.getClientsByCriteria(clientQueryDto);
         assertEquals(1, clientDtos.size());
     }
 
@@ -35,7 +37,7 @@ class ClientAdministratorTest {
 
         clientQueryDto.setTextFilter("ROBERTO");
 
-        List<ClientDto> clientDtos = clientAdministrator.getClientsByCriteria(clientQueryDto);
+        List<ClientDto> clientDtos = defaultCriteriaByNames.getClientsByCriteria(clientQueryDto);
         assertEquals(1, clientDtos.size());
     }
 }

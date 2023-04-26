@@ -45,4 +45,9 @@ public class AccountService {
                 .map(this::fromAccountEntityToAccountDto)
                 .collect(Collectors.toList());
     }
+
+    public void insert(AccountDto accountDto) {
+        Account account = fromAccountDtoToAccountEntity(accountDto);
+        accountRepository.save(account);
+    }
 }

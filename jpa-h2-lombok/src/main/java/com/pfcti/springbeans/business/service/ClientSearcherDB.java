@@ -1,34 +1,30 @@
-package com.pfcti.springbeans;
+package com.pfcti.springbeans.business.service;
 
+import com.pfcti.springbeans.business.ClientSearcher;
 import com.pfcti.springbeans.dto.ClientQueryDto;
 import com.pfcti.springbeans.dto.ClientQueryType;
 import com.pfcti.springdata.dto.ClientDto;
 import com.pfcti.springdata.model.Client;
 import com.pfcti.springdata.repository.ClientRepository;
 import com.pfcti.springdata.service.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ClientAdministrator {
+@Service("dataBaseService")
+public class ClientSearcherDB implements ClientSearcher {
+    @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
     private ClientService clientService;
 
-    private ClientQueryType clientQueryType;
-
-    public ClientAdministrator (ClientRepository clientRepository, ClientService clientService, ClientQueryType defaultClientQueryType) {
-        this.clientRepository = clientRepository;
-        this.clientService = clientService;
-        this.clientQueryType = defaultClientQueryType;
-    }
-
-    public List<ClientDto> getClientsByCriteria(ClientQueryDto clientQueryDto) {
-        if (clientQueryDto.getClientQueryType() == null) {
-            clientQueryDto.setClientQueryType(this.clientQueryType);
-        }
-
+    @Override
+    public List<ClientDto> getClients(ClientQueryDto clientQueryDto) {
         List<Client> clients = null;
         if (ClientQueryType.DNI.equals(clientQueryDto.getClientQueryType())) {
             clients = this.clientRepository.findByDni(clientQueryDto.getTextFilter());
@@ -43,5 +39,4 @@ public class ClientAdministrator {
                         .collect(Collectors.toList()))
                 .orElse(new ArrayList<>());
     }
-
 }

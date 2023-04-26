@@ -8,12 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
 @SpringBootTest
 class AccountServiceTest {
 
     @Autowired
     private AccountService accountService;
+
     @Test
     void findAccountByCriteria() {
         AccountDto accountDto = new AccountDto();
@@ -23,5 +23,17 @@ class AccountServiceTest {
         List<AccountDto> accountDtoList = accountService.findAccountByCriteria(accountDto);
 
         assertEquals(1, accountDtoList.size());
+    }
+
+    @Test
+    void insert() {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setClientId(1);
+        accountDto.setAccountNumber("370632r");
+        accountDto.setState(true);
+        accountDto.setType("SAVING");
+        accountService.insert(accountDto);
+
+        assertEquals(1, 1);
     }
 }

@@ -5,7 +5,6 @@ import com.pfcti.springdata.dto.ProductDto;
 import com.pfcti.springdata.model.Client;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Slf4j
 class ClientServiceTest {
 
     @Autowired
@@ -54,6 +52,20 @@ class ClientServiceTest {
         assertFalse(clients.isEmpty());
         System.out.println("lista después de insertar:" + clients.size());
         assertEquals("1", clients.get(0).getDni());
+    }
+
+    @Test
+    void insertClientWithValidation() {
+        ClientDto clientDto = new ClientDto();
+        clientDto.setName("Joseph");
+        clientDto.setLastNames("Ramirez Marchena");
+        clientDto.setDni("1111111");
+        clientDto.setPhone("88888888");
+        clientDto.setCountry("CR");
+
+        clientService.insert(clientDto);
+
+        assertEquals(1, 1);
     }
 
     @Test

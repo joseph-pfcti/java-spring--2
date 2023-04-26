@@ -7,6 +7,7 @@
 package com.pfcti.springdata.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,7 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotNull(message = "Name cannot be null")
     private String name;
     @Column(length = 30)
     private String lastNames;

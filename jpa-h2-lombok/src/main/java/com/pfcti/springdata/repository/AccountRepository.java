@@ -12,4 +12,8 @@ public interface AccountRepository extends JpaRepository<Account, Integer>, JpaS
     void deleteAllByClient_Id(int clientId);
 
     List<Account> findByClient_IdAndStateIsTrue(int clientId);
+
+    List<Account> findByAccountNumber(String accountNumber);
+
+    List<Account> findByState(Boolean state);
 }
