@@ -34,7 +34,7 @@ public class Client {
     private List<Account> accounts;
     @OneToMany(mappedBy = "client")
     private List<Address> addresses;
-    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "client")
     private List<Card> cards;
     @OneToMany(mappedBy = "client")
     private List<Investment> investments;

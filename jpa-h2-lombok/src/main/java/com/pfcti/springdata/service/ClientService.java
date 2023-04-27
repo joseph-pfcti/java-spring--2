@@ -174,4 +174,12 @@ public class ClientService {
 
         return productDto;
     }
+
+    public List<ClientDto> fromClientListToClientListDto (List<Client> clients) {
+        return clients.stream().map(this::fromClientToClientDto).collect(Collectors.toList());
+    }
+
+    public List<ClientDto> findAllClients() {
+        return this.fromClientListToClientListDto(this.clientRepository.findAll());
+    }
 }
