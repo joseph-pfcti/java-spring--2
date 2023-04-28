@@ -3,6 +3,7 @@ package com.pfcti.springdata.service;
 import com.pfcti.springdata.criteria.AccountSpecification;
 import com.pfcti.springdata.dto.AccountDto;
 import com.pfcti.springdata.model.Account;
+import com.pfcti.springdata.model.Client;
 import com.pfcti.springdata.repository.AccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -19,15 +20,25 @@ public class AccountService {
     private AccountRepository accountRepository;
     private AccountSpecification accountSpecification;
 
+    public List<AccountDto> findAllAccountsByClientId (int clientId) {
+        return this.convertAccountListToAccountListDto(this.accountRepository.findByClient_Id(clientId));
+    }
+
     private Account fromAccountDtoToAccountEntity (AccountDto accountDto) {
         Account account = new Account();
         BeanUtils.copyProperties(accountDto, account);
+
+        Client client = new Client();
+        client.setId(accountDto.getClientId());
+        account.setClient(client);
+
         return account;
     }
 
     private AccountDto fromAccountEntityToAccountDto (Account account) {
         AccountDto accountDto = new AccountDto();
         BeanUtils.copyProperties(account, accountDto);
+        accountDto.setClientId(account.getClient().getId());
         return accountDto;
     }
 
@@ -47,6 +58,11 @@ public class AccountService {
     }
 
     public void insert(AccountDto accountDto) {
+        Account account = fromAccountDtoToAccountEntity(accountDto);
+        accountRepository.save(account);
+    }
+
+    public void update(AccountDto accountDto) {
         Account account = fromAccountDtoToAccountEntity(accountDto);
         accountRepository.save(account);
     }

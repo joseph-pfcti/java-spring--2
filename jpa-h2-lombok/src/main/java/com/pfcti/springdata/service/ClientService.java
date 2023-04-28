@@ -182,4 +182,18 @@ public class ClientService {
     public List<ClientDto> findAllClients() {
         return this.fromClientListToClientListDto(this.clientRepository.findAll());
     }
+
+    public io.spring.guides.gs_producing_web_service.Client getClientSoap (int clientId) {
+        Client client = clientRepository.findById(clientId).orElseThrow(()-> { throw new RuntimeException("Client doesn't exist"); });
+
+        io.spring.guides.gs_producing_web_service.Client clientWs = new io.spring.guides.gs_producing_web_service.Client();
+        clientWs.setId(client.getId());
+        clientWs.setName(client.getName());
+        clientWs.setLastNames(client.getLastNames());
+        clientWs.setDni(client.getDni());
+        clientWs.setPhone(client.getPhone());
+        clientWs.setCountry(client.getCountry());
+
+        return clientWs;
+    }
 }

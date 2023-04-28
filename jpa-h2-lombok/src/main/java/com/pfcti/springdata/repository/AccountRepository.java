@@ -16,4 +16,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer>, JpaS
     List<Account> findByAccountNumber(String accountNumber);
 
     List<Account> findByState(Boolean state);
+
+    List<Account> findByClient_Id(int clientId);
 }

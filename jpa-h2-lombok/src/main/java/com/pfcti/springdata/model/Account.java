@@ -21,7 +21,7 @@ public class Account {
     @Size(min = 1, message = "Type needs to have at least 1 characters")
     private String type;
 
-    @AssertTrue(message = "State must be true")
+    // @AssertTrue(message = "State must be true")
     private Boolean state;
     @ManyToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
