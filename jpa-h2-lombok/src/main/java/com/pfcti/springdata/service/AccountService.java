@@ -5,8 +5,11 @@ import com.pfcti.springdata.dto.AccountDto;
 import com.pfcti.springdata.model.Account;
 import com.pfcti.springdata.model.Client;
 import com.pfcti.springdata.repository.AccountRepository;
+import com.pfcti.springjms.dto.NotificationDto;
+import com.pfcti.springjms.senders.NotificationSender;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +19,15 @@ import java.util.stream.Collectors;
 @Transactional
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AccountService {
     private AccountRepository accountRepository;
     private AccountSpecification accountSpecification;
+
+    private ClientService clientService;
+
+    private NotificationSender notificationSender;
+
 
     public List<AccountDto> findAllAccountsByClientId (int clientId) {
         return this.convertAccountListToAccountListDto(this.accountRepository.findByClient_Id(clientId));
@@ -43,8 +52,8 @@ public class AccountService {
     }
 
     public List<AccountDto> findAccountByCriteria (AccountDto accountDto) {
-        return accountRepository
-                .findAll(accountSpecification.buildFilter(accountDto))
+        return this.accountRepository
+                .findAll(this.accountSpecification.buildFilter(accountDto))
                 .stream()
                 .map(this::fromAccountEntityToAccountDto)
                 .collect(Collectors.toList());
@@ -59,11 +68,23 @@ public class AccountService {
 
     public void insert(AccountDto accountDto) {
         Account account = fromAccountDtoToAccountEntity(accountDto);
-        accountRepository.save(account);
+        this.accountRepository.save(account);
+        log.info("Account created {}", accountDto);
+
+        this.sendAccountNotification(accountDto);
     }
 
     public void update(AccountDto accountDto) {
         Account account = fromAccountDtoToAccountEntity(accountDto);
-        accountRepository.save(account);
+        this.accountRepository.save(account);
+    }
+
+    public void sendAccountNotification (AccountDto accountDto) {
+        Client client = this.clientService.find(accountDto.getClientId());
+
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setPhoneNumber(client.getPhone());
+        notificationDto.setSmsBody("Dear " + client.getName() + " your account has been created");
+        this.notificationSender.sendSMS(notificationDto);
     }
 }

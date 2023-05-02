@@ -16,7 +16,9 @@ import com.pfcti.springdata.repository.*;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
@@ -37,15 +39,15 @@ public class ClientService {
     private ClientSpecification clientSpecification;
 
     private CardService cardService;
-    private AccountService accountService;
+//    private AccountService accountService;
 
     public void insert(ClientDto clientDto) {
         Client client = fromClientDtoToClientEntity(clientDto);
-        clientRepository.save(client);
+        this.clientRepository.save(client);
     }
 
     public Client find(int clientId) {
-        Client client = clientRepository.findById(clientId).orElseThrow(()-> {
+        Client client = this.clientRepository.findById(clientId).orElseThrow(()-> {
             throw new RuntimeException("Client doesn't exist");
         });
 
@@ -54,16 +56,16 @@ public class ClientService {
 
     public void update(ClientDto clientDto) {
         Client client = fromClientDtoToClientEntity(clientDto);
-        clientRepository.save(client);
+        this.clientRepository.save(client);
     }
 
     public void delete(int clientId) {
-        addressRepository.deleteAllByClient_Id(clientId);
-        investmentRepository.deleteAllByClient_Id(clientId);
-        cardRepository.deleteAllByClient_Id(clientId);
-        accountRepository.deleteAllByClient_Id(clientId);
+        this.addressRepository.deleteAllByClient_Id(clientId);
+        this.investmentRepository.deleteAllByClient_Id(clientId);
+        this.cardRepository.deleteAllByClient_Id(clientId);
+        this.accountRepository.deleteAllByClient_Id(clientId);
 
-        clientRepository.deleteById(clientId);
+        this.clientRepository.deleteById(clientId);
     }
 
     public List<ClientDto> getClientsByCountryAndActiveAccounts(String countryCode) {
@@ -117,7 +119,7 @@ public class ClientService {
     }
 
     public List<ClientDto> findClientByLastNamesNative (String lastNames) {
-        List<Tuple> tupleList = clientRepository.findByLastNameNative(lastNames);
+        List<Tuple> tupleList = this.clientRepository.findByLastNameNative(lastNames);
         List<ClientDto> clientDtos = new ArrayList<>();
 
         tupleList.forEach(tuple -> {
@@ -145,7 +147,7 @@ public class ClientService {
     }
 
     public List<ClientDto> findByCriteria(ClientDto clientDtoFilter) {
-        return clientRepository
+        return this.clientRepository
                 .findAll(clientSpecification.buildFilter(clientDtoFilter))
                 .stream()
                 .map(this::fromClientToClientDto)
@@ -154,7 +156,7 @@ public class ClientService {
 
     public List<ClientDto> findByClientIdAndGetActiveProducts (int clientId) {
         List<ClientDto> clientDtoList = new ArrayList<>();
-        List<Client> clients = clientRepository.findClientByIdAndCards_StateIsTrueAndAccounts_StateIsTrue(clientId);
+        List<Client> clients = this.clientRepository.findClientByIdAndCards_StateIsTrueAndAccounts_StateIsTrue(clientId);
 
         clients.forEach(client -> {
             clientDtoList.add(this.fromClientToClientDto(client));
@@ -166,11 +168,11 @@ public class ClientService {
     public ProductDto findClientProductsByClientId (int clientId) {
         ProductDto productDto = new ProductDto();
 
-        List<Card> cards = cardRepository.findByClient_IdAndStateIsTrue(clientId);
-        productDto.setCards(cardService.convertCardListToCardListDto(cards));
+        List<Card> cards = this.cardRepository.findByClient_IdAndStateIsTrue(clientId);
+        productDto.setCards(this.cardService.convertCardListToCardListDto(cards));
 
-        List<Account> accounts = accountRepository.findByClient_IdAndStateIsTrue(clientId);
-        productDto.setAccounts(accountService.convertAccountListToAccountListDto(accounts));
+        List<Account> accounts = this.accountRepository.findByClient_IdAndStateIsTrue(clientId);
+//        productDto.setAccounts(this.accountService.convertAccountListToAccountListDto(accounts));
 
         return productDto;
     }
@@ -184,7 +186,7 @@ public class ClientService {
     }
 
     public io.spring.guides.gs_producing_web_service.Client getClientSoap (int clientId) {
-        Client client = clientRepository.findById(clientId).orElseThrow(()-> { throw new RuntimeException("Client doesn't exist"); });
+        Client client = this.clientRepository.findById(clientId).orElseThrow(()-> { throw new RuntimeException("Client doesn't exist"); });
 
         io.spring.guides.gs_producing_web_service.Client clientWs = new io.spring.guides.gs_producing_web_service.Client();
         clientWs.setId(client.getId());
