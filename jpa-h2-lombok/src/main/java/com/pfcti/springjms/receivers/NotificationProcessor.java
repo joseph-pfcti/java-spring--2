@@ -8,11 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class NotificationProcessor {
-
-
     /**
      * smsReceiverJms, sera el nombre de la cola donde esta escuchando
-     * @param notificationDto
      */
     @JmsListener(destination = "smsReceiverJms")
     public void processMessage (NotificationDto notificationDto) {

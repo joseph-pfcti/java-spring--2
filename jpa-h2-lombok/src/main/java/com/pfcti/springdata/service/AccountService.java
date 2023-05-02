@@ -6,11 +6,14 @@ import com.pfcti.springdata.model.Account;
 import com.pfcti.springdata.model.Client;
 import com.pfcti.springdata.repository.AccountRepository;
 import com.pfcti.springjms.dto.NotificationDto;
+import com.pfcti.springjms.pubsub.publisher.NotificationPubSubSender;
 import com.pfcti.springjms.senders.NotificationSender;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +30,8 @@ public class AccountService {
     private ClientService clientService;
 
     private NotificationSender notificationSender;
+
+    private NotificationPubSubSender notificationPubSubSender;
 
 
     public List<AccountDto> findAllAccountsByClientId (int clientId) {
@@ -86,5 +91,7 @@ public class AccountService {
         notificationDto.setPhoneNumber(client.getPhone());
         notificationDto.setSmsBody("Dear " + client.getName() + " your account has been created");
         this.notificationSender.sendSMS(notificationDto);
+        Message<AccountDto> message = MessageBuilder.withPayload(accountDto).build();
+        this.notificationPubSubSender.sendNotification(message);
     }
 }
