@@ -1,0 +1,50 @@
+server:
+  port: 8700
+
+uri:
+  api:
+    clients: http://localhost:8080
+
+spring:
+  application:
+    name: spring-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter:
+              replenishRate: 10
+              burstCapacity: 20
+              requestedTokens: 1
+        - name: CircuitBreaker
+          args:
+            name: clientService
+            fallbackUri: forward:/service-fallback
+      routes:
+        - id: allClients
+          uri: http://localhost:8080
+          predicates:
+            - Method=GET
+            - Path=/v1/api/client/all
+          filters:
+            - AddRequestHeader=X-GATEWAY-REQUEST-HEADER, GATEWAY_REQUEST
+            - AddResponseHeader=X-GATEWAY-RESPONSE-HEADER, GATEWAY_RESPONSE
+        - id: renameRoute
+          uri: http://localhost:8080
+          predicates:
+            - Method=GET
+            - Path=/pfcti/v1/api/clients
+          filters:
+            - RewritePath=/pfcti/v1/api/clients, /v1/api/client/all
+            - AddRequestHeader=X-GATEWAY-REQUEST-HEADER, GATEWAY_REQUEST
+            - AddResponseHeader=X-GATEWAY-RESPONSE-HEADER, GATEWAY_RESPONSE
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+# Trace every action
+management:
+  tracing:
+    sampling:
+      probability: 1.0
